@@ -2,7 +2,7 @@ from unittest import TestCase
 from loader.loaders import ThesisSummaryLoader
 from loader.utils import download_file_from_url
 from langchain_core.documents.base import Document
-from langchain_logger import logger
+from engine_logger.langchain_logger import logger
 
 
 class LoadPdfTest(TestCase):
