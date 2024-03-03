@@ -1,10 +1,10 @@
 from abc import ABCMeta, abstractmethod
 
 
-class BaseLoader(metaclass=ABCMeta):
+class BaseModel(metaclass=ABCMeta):
     def __init__(self) -> None:
         pass
 
     @abstractmethod
-    def load(self) -> str:
+    def get_model(self):
         pass
