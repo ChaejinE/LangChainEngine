@@ -1,10 +1,6 @@
 from abc import ABCMeta, abstractmethod
 
 
-class BaseModel(metaclass=ABCMeta):
+class BaseLLM(metaclass=ABCMeta):
     def __init__(self) -> None:
-        pass
-
-    @abstractmethod
-    def get_model(self):
         pass
