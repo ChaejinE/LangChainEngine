@@ -1,6 +1,5 @@
 from unittest import TestCase
 from model.llms import ThesisSummaryModel
-from engine_logger.langchain_logger import logger
 
 
 class LoadModelTest(TestCase):
@@ -13,4 +12,6 @@ class LoadModelTest(TestCase):
 
     def test_load(self) -> None:
         model = self.model_manager.model
-        logger.info(f"Model type : {type(model)}")
+        from langchain_openai import ChatOpenAI
+
+        self.assertIsInstance(model, ChatOpenAI)

@@ -1,7 +1,6 @@
 from unittest import TestCase
 from loader.loaders import ThesisSummaryLoader
 from langchain_core.documents.base import Document
-from engine_logger.langchain_logger import logger
 
 
 class LoadPdfTest(TestCase):
@@ -28,7 +27,4 @@ class LoadPdfTest(TestCase):
     def test_load(self):
         content = self._loader.load()
         self.assertIsInstance(content, list)
-        if content and len(content) > 0:
-            self.assertIsInstance(content[0], Document)
-        else:
-            logger.info(f"{__file__}\nDocument Length is : {len(content)}")
+        self.assertIsInstance(content[0], Document)
