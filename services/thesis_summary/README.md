@@ -6,10 +6,10 @@ pipenv install && pipenv shell
 
 # Unittest
 ```bash
-TEST_FILENAME=test_loader
+TEST_FILENAME=test_model
 
 # For specific case function
-TEST_CLASS_NAME=LoadPdfTest
+TEST_CLASS_NAME=LoadModelTest
 TEST_FUNCTIONNAME=test_load
 TEST_MODULE_CHAIN=${TEST_FILENAME}.${TEST_CLASS_NAME}.${TEST_FUNCTIONNAME}
 ```
