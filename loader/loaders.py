@@ -9,9 +9,9 @@ import sys
 
 
 class ThesisSummaryLoader(BaseLoader):
-    def __init__(self, file_path: str, file_uri: str) -> None:
+    def __init__(self, file_path: str = "", file_uri: str = "") -> None:
         super().__init__()
-        if not file_path and file_uri:
+        if file_uri and not file_path:
             tmp_file_path = "/tmp/temp.pdf"
             download_file_from_url(url=file_uri, save_path=tmp_file_path)
             file_path = tmp_file_path

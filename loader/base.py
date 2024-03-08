@@ -1,4 +1,5 @@
 from abc import ABCMeta, abstractmethod
+from typing import Any
 
 
 class BaseLoader(metaclass=ABCMeta):
@@ -6,5 +7,5 @@ class BaseLoader(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def load(self) -> str:
+    def load(self) -> Any:
         pass

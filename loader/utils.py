@@ -6,6 +6,8 @@ logging.basicConfig(level=logging.INFO)
 
 
 def download_file_from_url(url: str, save_path: str) -> None:
+    response = None
+
     try:
         response = requests.get(url, save_path)
         if response.status_code == 200:
