@@ -1,12 +1,5 @@
-import os, sys
-
-sys.path.append(
-    os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
-)
-
 from unittest import TestCase
 from loader.loaders import ThesisSummaryLoader
-from loader.utils import download_file_from_url
 from langchain_core.documents.base import Document
 from engine_logger.langchain_logger import logger
 
@@ -18,6 +11,18 @@ class LoadPdfTest(TestCase):
         return super().setUp()
 
     def tearDown(self) -> None:
+        removed_path = []
+        removed_path.append(self._loader.file_path)
+
+        import os
+
+        try:
+            for path in removed_path:
+                os.remove(path)
+        except:
+            for path in removed_path:
+                os.removedirs(path)
+
         return super().tearDown()
 
     def test_load(self):

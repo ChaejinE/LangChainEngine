@@ -11,12 +11,14 @@ import sys
 class ThesisSummaryLoader(BaseLoader):
     def __init__(self, file_path: str = "", file_uri: str = "") -> None:
         super().__init__()
-        if file_uri and not file_path:
+        self._file_path = file_path
+        self._file_uri = file_uri
+        if self._file_uri and not self._file_path:
             tmp_file_path = "/tmp/temp.pdf"
-            download_file_from_url(url=file_uri, save_path=tmp_file_path)
-            file_path = tmp_file_path
+            download_file_from_url(url=self._file_uri, save_path=tmp_file_path)
+            self._file_path = tmp_file_path
 
-        self._loader = PyPDFLoader(file_path=file_path, extract_images=True)
+        self._loader = PyPDFLoader(file_path=self._file_path, extract_images=True)
         self._spliter = RecursiveCharacterTextSplitter()
 
     def load(self) -> list[Document]:
@@ -33,3 +35,11 @@ class ThesisSummaryLoader(BaseLoader):
             sys.exit(1)
 
         return documents
+
+    @property
+    def file_path(self):
+        return self._file_path
+
+    @file_path.setter
+    def file_path(self, path):
+        self._file_path = path
