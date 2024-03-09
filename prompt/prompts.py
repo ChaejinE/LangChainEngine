@@ -1,41 +1,47 @@
 from langchain.prompts.chat import ChatPromptTemplate
-from langchain.prompts import PromptTemplate
+from langchain_core.messages import SystemMessage, HumanMessage
+from langchain_core.messages.base import BaseMessage
 from prompt.base import BasePrompt
+from typing import List
 
 
-class ThesisSummaryModel(BasePrompt):
+class ThesisSummaryPrompt(BasePrompt):
     def __init__(self) -> None:
-        self._system_prompt = None
-        self._human_prompt = None
-        self._prompt = None
+        self._system_message: str = ""
+        self._human_message: str = ""
+        self._prompt: str = ""
         super().__init__(prompt=self._prompt)
 
     @property
-    def system_prompt(self):
-        return self._system_prompt
+    def system_message(self) -> SystemMessage:
+        return self._system_message
 
-    @system_prompt.setter
-    def system_prompt(self, system_prompt: str) -> PromptTemplate:
-        self._system_prompt = PromptTemplate(system_prompt)
+    @system_message.setter
+    def system_message(self, prompt: str) -> SystemMessage:
+        self._system_message = SystemMessage(content=prompt)
 
     @property
-    def human_prompt(self):
-        return self._human_prompt
+    def human_message(self) -> HumanMessage:
+        return self._human_message
 
-    @human_prompt.setter
-    def human_prompt(self, human_prompt: str) -> PromptTemplate:
-        self._human_prompt = PromptTemplate(human_prompt)
+    @human_message.setter
+    def human_message(self, prompt: str) -> HumanMessage:
+        self._human_message = HumanMessage(content=prompt)
 
-    def generate(self):
-        self.system_prompt = "You are a helpful assistant that translates {input_language} to {output_language}."
-        self.human_prompt = "{text}"
+    def generate(
+        self, system_prompt: str = "", human_prompt: str = "", **kargs
+    ) -> List[BaseMessage]:
+        self.system_message = system_prompt
+        self.human_message = human_prompt
+
+        assert self.system_message.content, "Please setup system prompt"
+        assert self.human_message.content, "Please setup human prompt"
 
         self.prompt = ChatPromptTemplate.from_messages(
-            [("system", self.system_prompt), ("human", self.human_prompt)]
+            [
+                ("system", self.system_message.content),
+                ("human", self.human_message.content),
+            ]
         )
-        print(
-            "output : ",
-            self.prompt.format_messages(
-                input_language="English", output_language="French", text="I love noodle"
-            ),
-        )
+        prompt = self.prompt.format_messages(**kargs)
+        return prompt
