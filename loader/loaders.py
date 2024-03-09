@@ -33,14 +33,14 @@ class ThesisSummaryLoader(BaseLoader):
     def load(self) -> list[Document]:
         try:
             documents = self._loader.load_and_split(text_splitter=self._spliter)
-            logger.info(
+            logger.debug(
                 f"{__file__}\n \
                     Success Load Content\n \
                     DocumentSize: {len(documents)}\n \
                     ChunkSize: {max(list(map(lambda x: len(x.page_content), documents)))}"
             )
         except Exception as e:
-            logger.info(f"{__file__}\nFail Load Content\n{e}")
+            logger.debug(f"{__file__}\nFail Load Content\n{e}")
             sys.exit(1)
 
         return documents

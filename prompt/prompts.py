@@ -17,7 +17,7 @@ class ThesisSummaryPrompt(BasePrompt):
 
     @system_message.setter
     def system_message(self, msg: SystemMessage):
-        logger.info(f"Success to set system message : {msg}")
+        logger.debug(f"Success to set system message : {msg}")
         self._system_message = msg
 
     @property
@@ -26,7 +26,7 @@ class ThesisSummaryPrompt(BasePrompt):
 
     @human_message.setter
     def human_message(self, msg: HumanMessage):
-        logger.info(f"Success to set human message : {msg}")
+        logger.debug(f"Success to set human message : {msg}")
         self._human_message = msg
 
     def generate_template(
@@ -54,10 +54,12 @@ class ThesisSummaryPrompt(BasePrompt):
             if kargs:
                 self.prompt_template = self.prompt_template.format_messages(**kargs)
 
-            logger.info(f"Success to generate prompt template : {self.prompt_template}")
+            logger.debug(
+                f"Success to generate prompt template : {self.prompt_template}"
+            )
 
         except Exception as e:
-            logger.info(f"Fail to generate template\n{e}")
+            logger.debug(f"Fail to generate template\n{e}")
             raise e
 
         return self.prompt_template
