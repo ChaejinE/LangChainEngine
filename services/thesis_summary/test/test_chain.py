@@ -1,4 +1,4 @@
-from unittest import TestCase
+from unittest import TestCase, skip
 from chain.chains import ThesisSummaryChain
 
 import logging
@@ -14,9 +14,8 @@ class ChainTest(TestCase):
     def tearDown(self) -> None:
         return super().tearDown()
 
+    @skip(reason="Test need the money")
     def test_invoke(self) -> None:
-        url = "https://arxiv.org/pdf/1706.03762.pdf"
-
         # map prompt template
         map_document_variable = "pages"
         map_system_prompt_template = "You are the best AI thesis summary assistant about pages. This is partial of documents. Please summary about this page well."
@@ -96,6 +95,7 @@ When you integrate model workflows with continuous integration and continuous de
 
         self.assertIsInstance(result, str)
 
+        url = "https://arxiv.org/pdf/1706.03762.pdf"
         result = self.chain.invoke(
             map_document_variable=map_document_variable,
             map_system_prompt_template=map_system_prompt_template,
