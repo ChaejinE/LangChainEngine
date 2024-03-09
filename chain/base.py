@@ -1,4 +1,5 @@
-from abc import ABCMeta, abstractmethod
+from abc import ABCMeta
+from langchain.chains.base import Chain
 
 
 class BaseChain(metaclass=ABCMeta):
@@ -13,5 +14,5 @@ class BaseChain(metaclass=ABCMeta):
                 self._chain = self._chain | element
 
     @property
-    def chain(self) -> None:
+    def chain(self) -> Chain:
         return self._chain
