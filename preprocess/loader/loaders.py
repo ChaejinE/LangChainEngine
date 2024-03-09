@@ -22,6 +22,14 @@ class ThesisSummaryLoader(BaseLoader):
         self._loader = PyPDFLoader(file_path=self._file_path, extract_images=True)
         self._spliter = RecursiveCharacterTextSplitter()
 
+    @property
+    def file_path(self):
+        return self._file_path
+
+    @file_path.setter
+    def file_path(self, path):
+        self._file_path = path
+
     def load(self) -> list[Document]:
         try:
             documents = self._loader.load_and_split(text_splitter=self._spliter)
@@ -36,11 +44,3 @@ class ThesisSummaryLoader(BaseLoader):
             sys.exit(1)
 
         return documents
-
-    @property
-    def file_path(self):
-        return self._file_path
-
-    @file_path.setter
-    def file_path(self, path):
-        self._file_path = path

@@ -1,8 +1,7 @@
+from engine_logger.langchain_logger import logger
+
 import requests
 import os
-import logging
-
-logging.basicConfig(level=logging.INFO)
 
 
 def download_file_from_url(url: str, save_path: str) -> None:
@@ -14,12 +13,13 @@ def download_file_from_url(url: str, save_path: str) -> None:
             with open(save_path, "wb") as f:
                 f.write(response.content)
             if os.path.exists(save_path):
-                logging.info(f"{__file__}\nDownload Success on {save_path}")
+                logger.info(f"{__file__}\nDownload Success on {save_path}")
             else:
                 raise RuntimeError
         else:
             raise RuntimeError
     except Exception as e:
-        logging.warning(
+        logger.warning(
             f"{__file__}\nDownload Fail from {url}\nResponse Status : {response.status_code}\n{e}"
         )
+        raise e
