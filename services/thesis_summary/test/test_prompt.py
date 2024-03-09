@@ -1,5 +1,5 @@
 from unittest import TestCase
-from preprocess.prompt.prompts import ThesisSummaryPrompt
+from prompt.prompts import ThesisSummaryPrompt
 
 import logging
 

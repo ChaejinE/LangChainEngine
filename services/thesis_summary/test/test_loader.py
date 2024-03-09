@@ -1,5 +1,5 @@
 from unittest import TestCase
-from preprocess.loader.loaders import ThesisSummaryLoader
+from loader.loaders import ThesisSummaryLoader
 from langchain_core.documents.base import Document
 
 import logging
