@@ -14,16 +14,16 @@ class ThesisSummaryLoader(BaseLoader):
         self._file_path = file_path
         self._file_uri = file_uri
 
+        if self._file_uri and not self._file_path:
+            tmp_file_path = "/tmp/temp.pdf"
+            download_file_from_url(url=self._file_uri, save_path=tmp_file_path)
+            self._file_path = tmp_file_path
+
         self._loader = PyPDFLoader(file_path=self._file_path, extract_images=True)
         self._spliter = RecursiveCharacterTextSplitter()
 
     def load(self) -> list[Document]:
         try:
-            if self._file_uri and not self._file_path:
-                tmp_file_path = "/tmp/temp.pdf"
-                download_file_from_url(url=self._file_uri, save_path=tmp_file_path)
-                self._file_path = tmp_file_path
-
             documents = self._loader.load_and_split(text_splitter=self._spliter)
             logger.info(
                 f"{__file__}\n \
