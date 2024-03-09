@@ -6,10 +6,10 @@ pipenv install && pipenv shell
 
 # Unittest
 ```bash
-TEST_FILENAME=test_preprocess
+TEST_FILENAME=test_chain
 
 # For specific case function
-TEST_CLASS_NAME=PreprocessTest
+TEST_CLASS_NAME=ChainTest
 TEST_FUNCTIONNAME=test_run
 TEST_MODULE_CHAIN=${TEST_FILENAME}.${TEST_CLASS_NAME}.${TEST_FUNCTIONNAME}
 ```

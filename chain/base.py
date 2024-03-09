@@ -1,18 +1,17 @@
 from abc import ABCMeta
-from langchain.chains.base import Chain
+from typing import Any
+from engine_logger.langchain_logger import logger
 
 
 class BaseChain(metaclass=ABCMeta):
     def __init__(self) -> None:
         self._chain = None
 
-    def create(self, sequence: list):
-        for element in sequence:
-            if self._chain is None:
-                self._chain = element
-            else:
-                self._chain = self._chain | element
-
     @property
-    def chain(self) -> Chain:
+    def chain(self) -> Any:
         return self._chain
+
+    @chain.setter
+    def chain(self, chain: Any):
+        self._chain = chain
+        logger.info(f"Success to set chain : {type(self._chain)}")

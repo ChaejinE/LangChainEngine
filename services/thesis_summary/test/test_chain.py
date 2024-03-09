@@ -8,13 +8,13 @@ logging.basicConfig(level=logging.WARNING)
 
 class ChainTest(TestCase):
     def setUp(self) -> None:
-        self.chain = ThesisSummaryChain()
+        self.chain_manager = ThesisSummaryChain()
         return super().setUp()
 
     def tearDown(self) -> None:
         return super().tearDown()
 
-    @skip(reason="Test need the money")
+    # @skip(reason="Test need the money")
     def test_invoke(self) -> None:
         # map prompt template
         map_document_variable = "pages"
@@ -25,6 +25,18 @@ class ChainTest(TestCase):
         reduce_document_variable = "doc_summaries"
         reduce_system_prompt_template = "You are the best AI thesis summary assistant about documents. This is set of thesis summary. Please summary about this set well."
         reduce_partial_document_prompt_template = "{doc_summaries}"
+        chain = self.chain_manager.make_chain(
+            map_document_variable=map_document_variable,
+            map_system_prompt_template=map_system_prompt_template,
+            map_user_prompt_template=map_partial_document_prompt_template,
+            reduce_system_prompt_template=reduce_system_prompt_template,
+            reduce_user_prompt_template=reduce_partial_document_prompt_template,
+            reduce_document_variable=reduce_document_variable,
+        )
+        from langchain.chains import MapReduceDocumentsChain
+
+        self.assertIsInstance(chain, MapReduceDocumentsChain)
+        self.assertIsInstance(self.chain_manager.chain, MapReduceDocumentsChain)
 
         from langchain_core.documents.base import Document
 
@@ -83,27 +95,11 @@ MLOps improves troubleshooting and model management in production. For instance,
 When you integrate model workflows with continuous integration and continuous delivery (CI/CD) pipelines, you limit performance degradation and maintain quality for your model. This is true even after upgrades and model tuning."""
             ),
         ]
-        result = self.chain.invoke(
-            map_document_variable=map_document_variable,
-            map_system_prompt_template=map_system_prompt_template,
-            map_user_prompt_template=map_partial_document_prompt_template,
-            reduce_system_prompt_template=reduce_system_prompt_template,
-            reduce_user_prompt_template=reduce_partial_document_prompt_template,
-            reduce_document_variable=reduce_document_variable,
-            documents=documents,
-        )
+        result = self.chain_manager.invoke(documents=documents)
 
         self.assertIsInstance(result, str)
 
         url = "https://arxiv.org/pdf/1706.03762.pdf"
-        result = self.chain.invoke(
-            map_document_variable=map_document_variable,
-            map_system_prompt_template=map_system_prompt_template,
-            map_user_prompt_template=map_partial_document_prompt_template,
-            reduce_system_prompt_template=reduce_system_prompt_template,
-            reduce_user_prompt_template=reduce_partial_document_prompt_template,
-            reduce_document_variable=reduce_document_variable,
-            file_uri=url,
-        )
+        result = self.chain_manager.invoke(file_uri=url)
 
         self.assertIsInstance(result, str)

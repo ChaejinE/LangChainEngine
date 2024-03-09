@@ -22,8 +22,9 @@ class ThesisSummaryChain(BaseChain):
         self._reduce_prompt_template_manager = ThesisSummaryPrompt()
         self._reduce_llm = ThesisSummaryModel().model
         self._reduce_chain = None
+        self._chain: MapReduceDocumentsChain = None
 
-    def invoke(
+    def make_chain(
         self,
         map_document_variable,
         map_system_prompt_template,
@@ -31,14 +32,7 @@ class ThesisSummaryChain(BaseChain):
         reduce_document_variable,
         reduce_system_prompt_template,
         reduce_user_prompt_template,
-        file_path: str = "",
-        file_uri: str = "",
-        documents: list[Document] = [],
-    ) -> str:
-        if not documents:
-            self._loader = ThesisSummaryLoader(file_path=file_path, file_uri=file_uri)
-            documents = self._loader.load()
-
+    ) -> MapReduceDocumentsChain:
         map_prompt_template = self._map_prompt_template_manager.generate_template(
             system_prompt_template=map_system_prompt_template,
             human_prompt_template=map_user_prompt_template,
@@ -67,7 +61,7 @@ class ThesisSummaryChain(BaseChain):
         )
         logger.info("Success to create a ReduceDocumentsChain")
 
-        map_reduce_chain = MapReduceDocumentsChain(
+        self.chain = MapReduceDocumentsChain(
             llm_chain=self._map_chain,
             reduce_documents_chain=self._reduce_chain,
             document_variable_name=map_document_variable,
@@ -75,10 +69,23 @@ class ThesisSummaryChain(BaseChain):
         )
         logger.info("Success to create a MapReduceDocumentsChain")
 
+        return self.chain
+
+    def invoke(
+        self,
+        file_path: str = "",
+        file_uri: str = "",
+        documents: list[Document] = [],
+    ) -> str:
+        if not documents:
+            self._loader = ThesisSummaryLoader(file_path=file_path, file_uri=file_uri)
+            documents = self._loader.load()
+
         if documents or self._loader.is_download():
-            result = map_reduce_chain.invoke({"input_documents": documents})
+            result = self._chain.invoke({"input_documents": documents})
             result = result.get("output_text")
-            logger.info(f"Summary : \n{result}")
+            logger.info(f"Success to invoke a result")
+            logger.debug(f"Summary : \n{result}")
         else:
             raise RuntimeError("Fail to File Download")
 
