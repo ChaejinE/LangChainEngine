@@ -31,13 +31,13 @@ class ThesisSummaryChain(BaseChain):
         reduce_document_variable,
         reduce_system_prompt_template,
         reduce_user_prompt_template,
-        template_variable_table: dict = dict(),
         file_path: str = "",
         file_uri: str = "",
         documents: list[Document] = [],
     ) -> str:
-        self._loader = ThesisSummaryLoader(file_path=file_path, file_uri=file_uri)
-        documents = self._loader.load()
+        if not documents:
+            self._loader = ThesisSummaryLoader(file_path=file_path, file_uri=file_uri)
+            documents = self._loader.load()
 
         map_prompt_template = self._map_prompt_template_manager.generate_template(
             system_prompt_template=map_system_prompt_template,
@@ -75,7 +75,11 @@ class ThesisSummaryChain(BaseChain):
         )
         logger.info("Success to create a MapReduceDocumentsChain")
 
-        result = map_reduce_chain.invoke({"input_documents": documents})
-        result = result.get("output_text")
+        if documents or self._loader.is_download():
+            result = map_reduce_chain.invoke({"input_documents": documents})
+            result = result.get("output_text")
+            logger.info(f"Summary : \n{result}")
+        else:
+            raise RuntimeError("Fail to File Download")
 
         return result

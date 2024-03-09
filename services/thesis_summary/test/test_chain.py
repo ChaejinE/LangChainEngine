@@ -17,7 +17,6 @@ class ChainTest(TestCase):
     def test_invoke(self) -> None:
         url = "https://arxiv.org/pdf/1706.03762.pdf"
 
-        template_variable_table: dict = {"subject": "AI thesis"}
         # map prompt template
         map_document_variable = "pages"
         map_system_prompt_template = "You are the best AI thesis summary assistant about pages. This is partial of documents. Please summary about this page well."
@@ -93,7 +92,17 @@ When you integrate model workflows with continuous integration and continuous de
             reduce_user_prompt_template=reduce_partial_document_prompt_template,
             reduce_document_variable=reduce_document_variable,
             documents=documents,
-            template_variable_table=template_variable_table,
+        )
+
+        self.assertIsInstance(result, str)
+
+        result = self.chain.invoke(
+            map_document_variable=map_document_variable,
+            map_system_prompt_template=map_system_prompt_template,
+            map_user_prompt_template=map_partial_document_prompt_template,
+            reduce_system_prompt_template=reduce_system_prompt_template,
+            reduce_user_prompt_template=reduce_partial_document_prompt_template,
+            reduce_document_variable=reduce_document_variable,
             file_uri=url,
         )
 
