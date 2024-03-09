@@ -1,6 +1,10 @@
 from unittest import TestCase
 from model.llms import ThesisSummaryModel
 
+import logging
+
+logging.basicConfig(level=logging.INFO)
+
 
 class LoadModelTest(TestCase):
     def setUp(self) -> None:

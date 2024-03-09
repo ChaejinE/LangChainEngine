@@ -1,6 +1,10 @@
 from unittest import TestCase
 from preprocess.prompt.prompts import ThesisSummaryPrompt
 
+import logging
+
+logging.basicConfig(level=logging.INFO)
+
 
 class PromptTest(TestCase):
     def setUp(self) -> None:
@@ -28,7 +32,6 @@ class PromptTest(TestCase):
             human_prompt_template=human_prompt,
             **kargs,
         )
-        # sys_message, human_message = chat_message.format_messages(**kargs)
 
         self.assertIsInstance(sys_message, SystemMessage)
         self.assertEqual(sys_message.content, ground_truth_sys_propmt)

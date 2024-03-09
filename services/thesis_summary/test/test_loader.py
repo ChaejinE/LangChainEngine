@@ -2,6 +2,10 @@ from unittest import TestCase
 from preprocess.loader.loaders import ThesisSummaryLoader
 from langchain_core.documents.base import Document
 
+import logging
+
+logging.basicConfig(level=logging.INFO)
+
 
 class LoadPdfTest(TestCase):
     def setUp(self) -> None:
