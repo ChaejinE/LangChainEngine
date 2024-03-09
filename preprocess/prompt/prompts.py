@@ -31,11 +31,12 @@ class ThesisSummaryPrompt(BasePrompt):
     def generate(
         self, system_prompt: str = "", human_prompt: str = "", **kargs
     ) -> List[BaseMessage]:
-        self.system_message = system_prompt
-        self.human_message = human_prompt
-
-        assert self.system_message.content, "Please setup system prompt"
-        assert self.human_message.content, "Please setup human prompt"
+        if system_prompt:
+            self.system_message = system_prompt
+            assert self.system_message.content, "Please setup system prompt"
+        elif human_prompt:
+            self.human_message = human_prompt
+            assert self.human_message.content, "Please setup human prompt"
 
         self.prompt = ChatPromptTemplate.from_messages(
             [
@@ -43,5 +44,8 @@ class ThesisSummaryPrompt(BasePrompt):
                 ("human", self.human_message.content),
             ]
         )
-        prompt = self.prompt.format_messages(**kargs)
+
+        if kargs:
+            prompt = self.prompt.format_messages(**kargs)
+
         return prompt
