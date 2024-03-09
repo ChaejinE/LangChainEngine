@@ -3,14 +3,13 @@ import logging
 
 logging.basicConfig(level=logging.WARNING)
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
-print(sys.path)
 
 from fastapi import FastAPI
 from langserve import add_routes, CustomUserType
 from chain.chains import ThesisSummaryChain
 from langchain_core.runnables import RunnableLambda
 
-app = FastAPI(title="LangChain Server")
+app = FastAPI(title="Thesis Summary Server")
 
 
 class ThesisSummaryReuqest(CustomUserType):
@@ -41,7 +40,7 @@ def main(request: ThesisSummaryReuqest) -> str:
     return result
 
 
-add_routes(app, RunnableLambda(main), path="/nice")
+add_routes(app, RunnableLambda(main), path="/summary")
 
 if __name__ == "__main__":
     import uvicorn
