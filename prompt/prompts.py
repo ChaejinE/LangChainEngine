@@ -1,7 +1,7 @@
 from langchain.prompts.chat import ChatPromptTemplate
 from langchain_core.messages import SystemMessage, HumanMessage
 from langchain_core.messages.base import BaseMessage
-from preprocess.prompt.base import BasePrompt
+from prompt.base import BasePrompt
 from engine_logger.langchain_logger import logger
 from typing import Union, List
 

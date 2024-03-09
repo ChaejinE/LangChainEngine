@@ -1,5 +1,5 @@
-from preprocess.loader.base import BaseLoader
-from preprocess.loader.utils import download_file_from_url
+from loader.base import BaseLoader
+from loader.utils import download_file_from_url
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_core.documents.base import Document
