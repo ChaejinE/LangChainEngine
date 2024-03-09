@@ -23,9 +23,11 @@ class PromptTest(TestCase):
 
         from langchain_core.messages import SystemMessage, HumanMessage
 
-        sys_message, human_message = self.prompt_manager.generate(
-            system_prompt=system_prompt, human_prompt=human_prompt, **kargs
+        chat_message = self.prompt_manager.generate(
+            system_prompt=system_prompt, human_prompt=human_prompt
         )
+        sys_message, human_message = chat_message.format_messages(**kargs)
+
         self.assertIsInstance(sys_message, SystemMessage)
         self.assertEqual(sys_message.content, ground_truth_sys_propmt)
         self.assertIsInstance(human_message, HumanMessage)
