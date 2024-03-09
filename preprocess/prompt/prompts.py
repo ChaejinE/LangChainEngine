@@ -26,15 +26,15 @@ class ThesisSummaryPrompt(BasePrompt):
         self._human_message = HumanMessage(content=prompt)
 
     def generate_template(
-        self, system_prompt: str = "", human_prompt: str = ""
+        self, system_prompt_template: str = "", human_prompt_template: str = ""
     ) -> ChatPromptTemplate:
-        if system_prompt:
-            self.system_message = system_prompt
+        if system_prompt_template:
+            self.system_message = system_prompt_template
             assert (
                 self.system_message and self.system_message.content
             ), "Please setup system prompt"
-        if human_prompt:
-            self.human_message = human_prompt
+        if human_prompt_template:
+            self.human_message = human_prompt_template
             assert (
                 self.human_message and self.human_message.content
             ), "Please setup human prompt"
@@ -45,5 +45,4 @@ class ThesisSummaryPrompt(BasePrompt):
                 ("human", self.human_message.content),
             ]
         )
-
         return self.prompt_template
