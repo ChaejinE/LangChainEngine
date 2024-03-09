@@ -3,10 +3,10 @@ from langchain_openai import ChatOpenAI
 
 
 class ThesisSummaryModel(BaseLLM):
-    def __init__(self, model_name) -> None:
+    def __init__(self, model_name: str = "gpt-3.5-turbo-0125") -> None:
         super().__init__()
         self._model_name: str = model_name
-        self.model: ChatOpenAI = ChatOpenAI(name=model_name)
+        self.model: ChatOpenAI = ChatOpenAI(temperature=0, name=model_name)
 
     @property
     def model_name(self) -> str:
