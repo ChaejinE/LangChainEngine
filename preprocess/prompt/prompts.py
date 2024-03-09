@@ -25,7 +25,7 @@ class ThesisSummaryPrompt(BasePrompt):
     def human_message(self, prompt: str):
         self._human_message = HumanMessage(content=prompt)
 
-    def generate(
+    def generate_template(
         self, system_prompt: str = "", human_prompt: str = ""
     ) -> ChatPromptTemplate:
         if system_prompt:

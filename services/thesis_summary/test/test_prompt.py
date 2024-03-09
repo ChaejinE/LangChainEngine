@@ -23,7 +23,7 @@ class PromptTest(TestCase):
 
         from langchain_core.messages import SystemMessage, HumanMessage
 
-        chat_message = self.prompt_manager.generate(
+        chat_message = self.prompt_manager.generate_template(
             system_prompt=system_prompt, human_prompt=human_prompt
         )
         sys_message, human_message = chat_message.format_messages(**kargs)
