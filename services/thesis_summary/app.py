@@ -8,6 +8,7 @@ from fastapi import FastAPI
 from langserve import add_routes, CustomUserType
 from chain.chains import ThesisSummaryChain
 from langchain_core.runnables import RunnableLambda
+from langchain.pydantic_v1 import Field
 
 app = FastAPI(title="Thesis Summary Server")
 
@@ -24,9 +25,18 @@ class ThesisSummaryReuqest(CustomUserType):
     )
     reduce_document_variable: str = "doc_summaries"
     url: str = "https://arxiv.org/pdf/1706.03762.pdf"
+    file: bytes = Field(..., extra={"widget": {"type": "base64file"}})
 
 
 def main(request: ThesisSummaryReuqest) -> str:
+    save_path = "/tmp/tmp.pdf"
+    if request.file:
+        import base64
+
+        b = base64.decodebytes(request.file)
+        with open(save_path, "wb") as f:
+            f.write(b)
+
     chain_manager = ThesisSummaryChain()
     chain_manager.make_chain(
         map_document_variable=request.map_document_variable,
@@ -36,11 +46,14 @@ def main(request: ThesisSummaryReuqest) -> str:
         reduce_user_prompt_template=request.reduce_partial_document_prompt_template,
         reduce_document_variable=request.reduce_document_variable,
     )
-    result = chain_manager.invoke(file_uri=request.url)
+    if request.file:
+        result = chain_manager.invoke(file_path=save_path)
+    else:
+        result = chain_manager.invoke(file_uri=request.url)
     return result
 
 
-add_routes(app, RunnableLambda(main), path="/")
+add_routes(app, RunnableLambda(main), path="/summary")
 
 if __name__ == "__main__":
     import uvicorn

@@ -10,7 +10,7 @@ pipenv install && pipenv shell
 
 ## Run
 ```bash
-python services.thesis_summary.app.py
+python -m services.thesis_summary.app
 ```
 
 ## Unittest
