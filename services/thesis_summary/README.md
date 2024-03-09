@@ -21,3 +21,6 @@ python -m unittest test.${TEST_FILENAME}
 # Test specific case function
 python -m unittest test.${TEST_MODULE_CHAIN}
 ```
+
+# Link
+- [map-reduce](https://python.langchain.com/docs/use_cases/summarization#option-2.-map-reduce)
