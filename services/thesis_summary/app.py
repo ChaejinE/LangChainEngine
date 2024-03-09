@@ -40,7 +40,7 @@ def main(request: ThesisSummaryReuqest) -> str:
     return result
 
 
-add_routes(app, RunnableLambda(main), path="/summary")
+add_routes(app, RunnableLambda(main), path="/")
 
 if __name__ == "__main__":
     import uvicorn
