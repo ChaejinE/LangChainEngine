@@ -26,7 +26,7 @@ class ThesisSummaryPrompt(BasePrompt):
         self._human_message = HumanMessage(content=prompt)
 
     def generate_template(
-        self, system_prompt_template: str = "", human_prompt_template: str = ""
+        self, system_prompt_template: str = "", human_prompt_template: str = "", **kargs
     ) -> ChatPromptTemplate:
         if system_prompt_template:
             self.system_message = system_prompt_template
@@ -45,4 +45,8 @@ class ThesisSummaryPrompt(BasePrompt):
                 ("human", self.human_message.content),
             ]
         )
+
+        if kargs:
+            self.prompt_template = self.prompt_template.format_messages(**kargs)
+
         return self.prompt_template
