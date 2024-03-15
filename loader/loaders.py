@@ -17,7 +17,6 @@ class ThesisSummaryLoader(BaseLoader):
         self._file_uri = file_uri
         self._loader = None
         self._spliter = RecursiveCharacterTextSplitter()
-        self._thread_event = Event()
 
     @property
     def file_path(self):
@@ -27,16 +26,15 @@ class ThesisSummaryLoader(BaseLoader):
     def file_path(self, path):
         self._file_path = path
 
-    def download_file(self, url, save_path):
-        logger.info(f"Start to download file from {url}")
-        Thread(
-            target=download_file_from_url,
-            kwargs={"url": url, "save_path": save_path},
-        ).start()
-        self._thread_event.set()
+    @property
+    def file_uri(self):
+        return self._file_uri
+
+    @file_uri.setter
+    def file_uri(self, uri):
+        self._file_uri = uri
 
     def is_download(self):
-        self._thread_event.wait(timeout=120)
         result = os.path.exists(self._file_path)
         logger.info(f"Is Donwloaded ? : {result}")
         return result
@@ -45,10 +43,9 @@ class ThesisSummaryLoader(BaseLoader):
         try:
             if self._file_uri:
                 logger.info(f"It would be executed from {self._file_uri}")
-                self.download_file(url=self._file_uri, save_path=self._file_path)
+                download_file_from_url(url=self._file_uri, save_path=self._file_path)
             else:
                 logger.info(f"It would be executed from {self._file_path}")
-                self._thread_event.set()
 
             self._loader = PyPDFLoader(file_path=self._file_path, extract_images=True)
             documents = self._loader.load_and_split(text_splitter=self._spliter)

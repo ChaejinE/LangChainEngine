@@ -63,3 +63,69 @@ class ThesisSummaryPrompt(BasePrompt):
             raise e
 
         return self.prompt_template
+
+
+class ThesisSummaryMapPrompt(ThesisSummaryPrompt):
+    def __init__(self) -> None:
+        super().__init__()
+        self._map_document_variable: str = ""
+
+    @property
+    def map_document_variable(self):
+        if not self._map_document_variable:
+            raise ValueError(
+                f"map document variable is invalid value : {self._map_document_variable}, {type(self._map_document_variable)}"
+            )
+        return self._map_document_variable
+
+    @map_document_variable.setter
+    def map_document_variable(self, val):
+        self._map_document_variable = val
+
+    def generate_map_template(self):
+        map_system_prompt_template: str = (
+            "You are the best AI thesis summary assistant about pages. This is partial of documents. Please summary about this page well."
+        )
+        map_partial_document_prompt_template: str = (
+            "{" + self.map_document_variable + "}"
+        )
+
+        map_prompt_template = self.generate_template(
+            system_prompt_template=map_system_prompt_template,
+            human_prompt_template=map_partial_document_prompt_template,
+        )
+        logger.info(f"Map prompt template : {map_prompt_template}")
+
+        return map_prompt_template
+
+
+class ThesisSummaryReducePrompt(ThesisSummaryPrompt):
+    def __init__(self) -> None:
+        super().__init__()
+        self._reduce_document_variable: str = ""
+
+    @property
+    def reduce_document_variable(self):
+        if not self._reduce_document_variable:
+            raise ValueError(
+                f"reduce document variable is invalid value : {self._reduce_document_variable}, {type(self._reduce_document_variable)}"
+            )
+        return self._reduce_document_variable
+
+    @reduce_document_variable.setter
+    def reduce_document_variable(self, val):
+        self._reduce_document_variable = val
+
+    def generate_reduce_template(self):
+        reduce_system_prompt_template: str = "{" + self.reduce_document_variable + "}"
+        reduce_partial_document_prompt_template: str = (
+            "You are the best AI thesis summary assistant about documents. This is set of thesis summary. Please summary about this set well."
+        )
+
+        reduce_prompt_template = self.generate_template(
+            system_prompt_template=reduce_system_prompt_template,
+            human_prompt_template=reduce_partial_document_prompt_template,
+        )
+        logger.info(f"Reduce prompt template : {reduce_prompt_template}")
+
+        return reduce_prompt_template

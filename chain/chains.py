@@ -1,57 +1,65 @@
-from chain.base import BaseChain
 from langchain.chains import (
     LLMChain,
     StuffDocumentsChain,
     ReduceDocumentsChain,
     MapReduceDocumentsChain,
 )
-from prompt.prompts import ThesisSummaryPrompt
+from prompt.prompts import ThesisSummaryMapPrompt, ThesisSummaryReducePrompt
 from model.llms import ThesisSummaryModel
 from loader.loaders import ThesisSummaryLoader
-from langchain_core.documents.base import Document
 from engine_logger.langchain_logger import logger
 
 
-class ThesisSummaryChain(BaseChain):
+class ThesisSummaryChain:
     def __init__(self) -> None:
         super().__init__()
-        self._loader = None
-        self._map_prompt_template_manager = ThesisSummaryPrompt()
+        self._loader = ThesisSummaryLoader()
+        self._map_prompt_template_manager = ThesisSummaryMapPrompt()
         self._map_llm = ThesisSummaryModel().model
         self._map_chain = None
-        self._reduce_prompt_template_manager = ThesisSummaryPrompt()
+        self._reduce_prompt_template_manager = ThesisSummaryReducePrompt()
         self._reduce_llm = ThesisSummaryModel().model
         self._reduce_chain = None
-        self._chain: MapReduceDocumentsChain = None
+        self._chain = None
 
-    def make_chain(
-        self,
-        map_document_variable,
-        map_system_prompt_template,
-        map_user_prompt_template,
-        reduce_document_variable,
-        reduce_system_prompt_template,
-        reduce_user_prompt_template,
-    ) -> MapReduceDocumentsChain:
-        map_prompt_template = self._map_prompt_template_manager.generate_template(
-            system_prompt_template=map_system_prompt_template,
-            human_prompt_template=map_user_prompt_template,
+    @property
+    def chain(self):
+        return self._chain
+
+    def make_loader_for_chain(self, file_path: str, file_uri: str):
+        from langchain.schema.runnable import RunnableLambda
+
+        self._loader.file_path, self._loader.file_uri = file_path, file_uri
+
+        return RunnableLambda(self._loader.load)
+
+    def make_prompt_for_chain(self) -> tuple:
+        self._map_prompt_template_manager.map_document_variable = "pages"
+        map_prompt_template = self._map_prompt_template_manager.generate_map_template()
+
+        self._reduce_prompt_template_manager.reduce_document_variable = "doc_summaries"
+        reduce_prompt_template = (
+            self._reduce_prompt_template_manager.generate_reduce_template()
         )
-        logger.info(f"Map prompt template : {map_prompt_template}")
+
+        return (map_prompt_template, reduce_prompt_template)
+
+    def make_chain(self, file_path="", file_uri=""):
+        # loader
+        loader = self.make_loader_for_chain(file_path=file_path, file_uri=file_uri)
+
+        # prompt
+        map_prompt_template, reduce_prompt_template = self.make_prompt_for_chain()
+
+        # basic chain
         self._map_chain = LLMChain(llm=self._map_llm, prompt=map_prompt_template)
         logger.info("Success to create a map llm chain")
-
-        reduce_prompt_template = self._reduce_prompt_template_manager.generate_template(
-            system_prompt_template=reduce_system_prompt_template,
-            human_prompt_template=reduce_user_prompt_template,
-        )
-        logger.info(f"Reduce prompt template : {reduce_prompt_template}")
 
         reduce_chain = LLMChain(llm=self._reduce_llm, prompt=reduce_prompt_template)
         logger.info("Success to create a reduce llm chain for reduce")
         combined_documents_chain = StuffDocumentsChain(
             llm_chain=reduce_chain,
-            document_variable_name=reduce_document_variable,
+            document_variable_name=self._reduce_prompt_template_manager.reduce_document_variable,
         )
         logger.info("Success to create a StuffDocumentsChain for reduce")
         self._reduce_chain = ReduceDocumentsChain(
@@ -64,29 +72,10 @@ class ThesisSummaryChain(BaseChain):
         self.chain = MapReduceDocumentsChain(
             llm_chain=self._map_chain,
             reduce_documents_chain=self._reduce_chain,
-            document_variable_name=map_document_variable,
+            document_variable_name=self._map_prompt_template_manager.map_document_variable,
             return_intermediate_steps=False,
         )
         logger.info("Success to create a MapReduceDocumentsChain")
 
-        return self.chain
-
-    def invoke(
-        self,
-        file_path: str = "",
-        file_uri: str = "",
-        documents: list[Document] = [],
-    ) -> str:
-        if not documents:
-            self._loader = ThesisSummaryLoader(file_path=file_path, file_uri=file_uri)
-            documents = self._loader.load()
-
-        if documents or self._loader.is_download():
-            result = self._chain.invoke({"input_documents": documents})
-            result = result.get("output_text")
-            logger.info(f"Success to invoke a result")
-            logger.debug(f"Summary : \n{result}")
-        else:
-            raise RuntimeError("Fail to File Download")
-
-        return result
+        # result chain
+        return loader | self.chain
