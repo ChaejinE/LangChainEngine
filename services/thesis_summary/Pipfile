@@ -9,6 +9,7 @@ langchain-openai = "*"
 pypdf = "*"
 rapidocr-onnxruntime = "*"
 langserve = {extras = ["all"], version = "*"}
+pydantic = "==1.10.13"
 
 [dev-packages]
 
