@@ -10,6 +10,7 @@ from langserve import add_routes, CustomUserType
 from chain.chains import ThesisSummaryChain
 from langchain_core.runnables import RunnableLambda
 from langchain.pydantic_v1 import Field
+from engine_logger.langchain_logger import logger
 
 app = FastAPI(title="Thesis Summary Server")
 
@@ -29,8 +30,8 @@ app.add_middleware(
 
 
 class ThesisSummaryReuqest(CustomUserType):
-    url: str = "https://arxiv.org/pdf/1706.03762.pdf"
-    file: bytes = Field(..., extra={"widget": {"type": "base64file"}})
+    url: str = None
+    file: bytes = Field(default=None, extra={"widget": {"type": "base64file"}})
 
 
 def main(request: ThesisSummaryReuqest) -> str:
@@ -43,14 +44,22 @@ def main(request: ThesisSummaryReuqest) -> str:
             f.write(b)
 
     chain_manager = ThesisSummaryChain()
-    chain = chain_manager.make_chain(file_uri=request.url, file_path=save_path)
-    result = chain.invoke()
-    return result
+    chain = chain_manager.make_chain()
+    try:
+        logger.info("Start to invoke")
+        result = chain.invoke({"file_uri": request.url, "file_path": save_path})
+        logger.info("Success to invoke")
+
+    except Exception as e:
+        logger.info("Fail to invoke")
+        raise e
+
+    return result["output_text"]
 
 
 add_routes(
     app,
-    RunnableLambda(main).with_types(input_type=ThesisSummaryReuqest, output_type=str),
+    RunnableLambda(main),
     path="/summary",
 )
 

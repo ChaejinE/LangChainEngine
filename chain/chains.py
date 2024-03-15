@@ -26,10 +26,8 @@ class ThesisSummaryChain:
     def chain(self):
         return self._chain
 
-    def make_loader_for_chain(self, file_path: str, file_uri: str):
+    def make_loader_for_chain(self):
         from langchain.schema.runnable import RunnableLambda
-
-        self._loader.file_path, self._loader.file_uri = file_path, file_uri
 
         return RunnableLambda(self._loader.load)
 
@@ -44,9 +42,9 @@ class ThesisSummaryChain:
 
         return (map_prompt_template, reduce_prompt_template)
 
-    def make_chain(self, file_path="", file_uri=""):
+    def make_chain(self):
         # loader
-        loader = self.make_loader_for_chain(file_path=file_path, file_uri=file_uri)
+        loader = self.make_loader_for_chain()
 
         # prompt
         map_prompt_template, reduce_prompt_template = self.make_prompt_for_chain()
@@ -57,11 +55,13 @@ class ThesisSummaryChain:
 
         reduce_chain = LLMChain(llm=self._reduce_llm, prompt=reduce_prompt_template)
         logger.info("Success to create a reduce llm chain for reduce")
+
         combined_documents_chain = StuffDocumentsChain(
             llm_chain=reduce_chain,
             document_variable_name=self._reduce_prompt_template_manager.reduce_document_variable,
         )
         logger.info("Success to create a StuffDocumentsChain for reduce")
+
         self._reduce_chain = ReduceDocumentsChain(
             combine_documents_chain=combined_documents_chain,
             collapse_documents_chain=combined_documents_chain,
@@ -69,7 +69,7 @@ class ThesisSummaryChain:
         )
         logger.info("Success to create a ReduceDocumentsChain")
 
-        self.chain = MapReduceDocumentsChain(
+        chain = MapReduceDocumentsChain(
             llm_chain=self._map_chain,
             reduce_documents_chain=self._reduce_chain,
             document_variable_name=self._map_prompt_template_manager.map_document_variable,
@@ -78,4 +78,5 @@ class ThesisSummaryChain:
         logger.info("Success to create a MapReduceDocumentsChain")
 
         # result chain
-        return loader | self.chain
+        chain = loader | chain
+        return chain
