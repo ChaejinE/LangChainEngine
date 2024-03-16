@@ -12,13 +12,11 @@ from langchain_core.runnables import RunnableLambda
 from langchain.pydantic_v1 import Field
 from engine_logger.langchain_logger import logger
 
+import uuid
+
 app = FastAPI(title="Thesis Summary Server")
 
-origins = [
-    "http://localhost",
-    "http://localhost:8080",
-    "http://localhost:3000",
-]
+origins = ["*"]
 
 app.add_middleware(
     CORSMiddleware,
@@ -26,6 +24,7 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["*"],
 )
 
 
@@ -35,13 +34,16 @@ class ThesisSummaryReuqest(CustomUserType):
 
 
 def main(request: ThesisSummaryReuqest) -> str:
-    save_path = "/tmp/tmp.pdf"
+    save_path = f"/tmp/tmp-{uuid.uuid1()}.pdf"
     if request.file:
         import base64
 
         b = base64.decodebytes(request.file)
         with open(save_path, "wb") as f:
             f.write(b)
+    elif not request.url:
+        logger.warning(f"[Main] Request is invalid : {request}")
+        return ""
 
     chain_manager = ThesisSummaryChain()
     chain = chain_manager.make_chain()
@@ -49,10 +51,13 @@ def main(request: ThesisSummaryReuqest) -> str:
         logger.info("Start to invoke")
         result = chain.invoke({"file_uri": request.url, "file_path": save_path})
         logger.info("Success to invoke")
-
-    except Exception as e:
+    except Exception:
         logger.info("Fail to invoke")
-        raise e
+        result = {"output_text": "Fail"}
+    finally:
+        if os.path.exists(save_path):
+            os.remove(save_path)
+            logger.info(f"Succeess to remove file : {save_path}")
 
     return result["output_text"]
 
@@ -66,4 +71,4 @@ add_routes(
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(app, host="localhost", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=8000)

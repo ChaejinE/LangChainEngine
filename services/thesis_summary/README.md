@@ -30,3 +30,14 @@ python -m unittest services.thesis_summary.test.${TEST_FILENAME}
 # Test specific case function
 python -m unittest services.thesis_summary.test.${TEST_MODULE_CHAIN}
 ```
+
+# Docker run
+```bash
+PYTHON_VERSION=3.9.6
+docker run --name thesis_summary_langchain -it --rm -d --net host -e OPENAI_API_KEY=${OPENAI_API_KEY} -v .:/usr/src/app -p 8000:8000 python:${PYTHON_VERSION}-slim
+```
+
+## Installed pkgs
+```bash
+apt update && apt-get install -y libgl1-mesa-glx libglib2.0-0
+```
